@@ -15,7 +15,7 @@ export default class App extends React.Component {
     }
   }
 
-  _switchButtonPress(e) {
+  _switchButtonPress = (e) => {
     console.log("button pressed", this.state)
     if (this.state.hidden) {
       Animated.parallel([
@@ -75,7 +75,7 @@ export default class App extends React.Component {
         </Animated.View>
         <View style={styles.butts}>
           <Button
-            onPress={(e) => this._switchButtonPress(e)}
+            onPress={this._switchButtonPress}
             title="SWITCH!" />
         </View>
 
