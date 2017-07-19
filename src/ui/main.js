@@ -1,83 +1,96 @@
 // @Flow
 import React from 'react'
+import { connect } from 'react-redux'
 import { StyleSheet, Text, View, Button, Animated } from 'react-native'
-import { Styles } from 'consts'
+import { Styles, Messages } from 'const'
 
 const INSIDE_BOX_HEIGHT = 150
 const ANIMATION_DURATION = 400
 
-export class Main extends React.Component {
+const mapStateToProps = state => {
+  console.log("map state ", state)
+  return {
+    hidden: state.mainContainerVisibility
+  }
+}
+
+const mapDispatchToProps = dispatch => ({
+  visibilityClick: () => dispatch({
+    type: Messages.MAIN_CHANGE_CONTAINER_VISIBILITY,
+  })
+})
+
+class UI_Main extends React.Component {
+    props: {
+      hidden: boolean,
+      visibilityClick: Function,
+    };
 
     constructor(props) {
-        super(props)
-        this.state = {
-            hidden: false,
-            insideboxAlpha: new Animated.Value(1),
-            insideboxHeight: new Animated.Value(INSIDE_BOX_HEIGHT),
-        }
+      super(props)
+      console.log("main constructor with props ", props)
+      this.state = {
+        insideboxAlpha: new Animated.Value(props.hidden ? 0 : 1),
+        insideboxHeight: new Animated.Value(props.hidden ? 0 : INSIDE_BOX_HEIGHT)
+      }
     }
 
-    _switchButtonPress = (e) => {
-        console.log("button pressed", this.state)
-        if (this.state.hidden) {
-            Animated.parallel([
-                Animated.timing(
-                    this.state.insideboxHeight,
-                    {
-                        toValue: INSIDE_BOX_HEIGHT,
-                        duration: ANIMATION_DURATION,
-                    }),
-                Animated.timing(
-                    this.state.insideboxAlpha,
-                    {
-                        toValue: 1,
-                        duration: ANIMATION_DURATION / 2,
-                        delay: ANIMATION_DURATION / 4,
-                    }
-                ),
-            ]).start()
+    componentWillReceiveProps(nextProps) {
+      console.log("check animation start state:(", this.state, ") props:(", this.props, ") next:(", nextProps, ")")
+      if (this.props.hidden !== nextProps.hidden) {
+        if (!nextProps.hidden) {
+          Animated.parallel([
+            Animated.timing(
+              this.state.insideboxHeight, {
+                toValue: INSIDE_BOX_HEIGHT,
+                duration: ANIMATION_DURATION,
+              }),
+            Animated.timing(
+              this.state.insideboxAlpha, {
+                toValue: 1,
+                duration: ANIMATION_DURATION / 2,
+                delay: ANIMATION_DURATION / 4,
+              }
+            ),
+          ]).start()
         } else {
-            Animated.parallel([
-                Animated.timing(
-                    this.state.insideboxAlpha,
-                    {
-                        toValue: 0,
-                        duration: ANIMATION_DURATION / 2,
-                        delay: ANIMATION_DURATION / 4,
-                    }),
-                Animated.timing(
-                    this.state.insideboxHeight,
-                    {
-                        toValue: 0,
-                        duration: ANIMATION_DURATION,
-                    }),
-            ]).start()
+          Animated.parallel([
+            Animated.timing(
+              this.state.insideboxAlpha, {
+                toValue: 0,
+                duration: ANIMATION_DURATION / 2,
+                delay: ANIMATION_DURATION / 4,
+              }),
+            Animated.timing(
+              this.state.insideboxHeight, {
+                toValue: 0,
+                duration: ANIMATION_DURATION,
+              }),
+          ]).start()
         }
-        this.setState({
-            hidden: !this.state.hidden,
-        })
+      }
+    }
 
+    buttonPress = () => {
+      this.props.visibilityClick()
     }
 
     render() {
         return (
-            <View style={[styles.container, Styles.fill, { marginTop: 21 }]}>
+            <View style={styles.container}>
                 <Text>Open up App.js to start working on your app!</Text>
                 <Text>Changes you make will automatically reload.</Text>
                 <Text>Shake your phone to open the developer menu.</Text>
 
-                <Animated.View style={[styles.container, styles.insideBox, {
-                    marginTop: 10,
+                <Animated.View style={[styles.insideBox, {
                     opacity: this.state.insideboxAlpha,
                     height: this.state.insideboxHeight
                 }]}>
-                    <Text style={{
-                        color: '#f00',
-                    }}>To jest mój tekścik :D</Text>
+                    <Text style={styles.insideText}>To jest mój tekścik :D</Text>
                 </Animated.View>
                 <View style={styles.butts}>
                     <Button
-                        onPress={this._switchButtonPress}
+                        onPress={this.buttonPress}
                         title="SWITCH!" />
                 </View>
 
@@ -85,23 +98,37 @@ export class Main extends React.Component {
         );
     }
 }
-
+const baseStyles = {
+  baseContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  }
+}
 const styles = StyleSheet.create({
-    container: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-    },
+  container: {
+    ...baseStyles.baseContainer,
+    ...Styles.fill,
+    marginTop: 21,
+  },
 
-    insideBox: {
-        backgroundColor: '#123456',
-        width: 200,
-        height: INSIDE_BOX_HEIGHT,
-        flexDirection: 'column',
-        justifyContent: 'center',
-    },
+  insideBox: {
+    ...baseStyles.baseContainer,
+    marginTop: 10,
+    backgroundColor: '#123456',
+    width: 200,
+    height: INSIDE_BOX_HEIGHT,
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
 
-    butts: {
-        padding: 10,
-    }
+  insideText: {
+    color: '#f00',
+  },
+
+  butts: {
+    padding: 10,
+  }
 })
+
+export const Main = connect(mapStateToProps, mapDispatchToProps)(UI_Main)

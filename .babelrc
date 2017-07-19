@@ -17,8 +17,9 @@
           "./src"
         ],
         "alias": {
-          "consts": "consts",
-          "ui": "ui"
+          "const": "const",
+          "ui": "ui",
+          "reducer": "reducer"
         }
       }
     ]

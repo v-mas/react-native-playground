@@ -1,0 +1,3 @@
+export default {
+    MAIN_CHANGE_CONTAINER_VISIBILITY: 1000
+}
